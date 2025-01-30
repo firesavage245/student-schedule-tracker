@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Schedule Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .schedule, .progress { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>School Schedule</h1>
+    <label for="studentSelect">Select Student:</label>
+    <select id="studentSelect" onchange="updateSchedule()">
+        <option value="zacharias">Zacharias</option>
+        <option value="mattatha">Mattatha</option>
+        <option value="hadassah">Hadassah</option>
+    </select>
+    
+    <div class="schedule">
+        <h2>Weekly Schedule</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Subjects</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+        </table>
+    </div>
+    
+    <div class="progress">
+        <h2>Progress & Last Submission</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Progress</th>
+                    <th>Last Submission</th>
+                    <th>Update Date</th>
+                </tr>
+            </thead>
+            <tbody id="progressBody"></tbody>
+        </table>
+    </div>
+    
+    <script>
+        const students = {
+            zacharias: {
+                schedule: {
+                    Sunday: ['LA', 'Science'],
+                    Monday: ['Math', 'Keyboarding'],
+                    Tuesday: ['LA', 'Science'],
+                    Wednesday: ['Math', 'Keyboarding'],
+                    Thursday: ['LA', 'Science'],
+                    Friday: ['Math', 'Keyboarding']
+                },
+                progress: {
+                    Keyboarding: 85,
+                    Math: 14,
+                    Science: 26,
+                    LA: 85
+                },
+                lastSubmission: {}
+            },
+            mattatha: {
+                schedule: {
+                    Sunday: ['Algebra'],
+                    Monday: ['Biology'],
+                    Tuesday: ['Algebra'],
+                    Wednesday: ['Biology'],
+                    Thursday: ['English'],
+                    Friday: ['English']
+                },
+                progress: {
+                    Algebra: 37,
+                    Biology: 56,
+                    English: 60
+                },
+                lastSubmission: {}
+            },
+            hadassah: {
+                schedule: {
+                    Sunday: ['Civics', 'Science'],
+                    Monday: ['Pre-Algebra'],
+                    Tuesday: ['Civics', 'Science'],
+                    Wednesday: ['Pre-Algebra'],
+                    Thursday: ['English'],
+                    Friday: ['English']
+                },
+                progress: {
+                    Civics: 50,
+                    'Pre-Algebra': 3,
+                    English: 20,
+                    'Physical Science': 54
+                },
+                lastSubmission: {}
+            }
+        };
+
+        function updateSchedule() {
+            const student = document.getElementById('studentSelect').value;
+            const scheduleBody = document.getElementById('scheduleBody');
+            const progressBody = document.getElementById('progressBody');
+            
+            scheduleBody.innerHTML = '';
+            for (const [day, subjects] of Object.entries(students[student].schedule)) {
+                const row = `<tr><td>${day}</td><td>${subjects.join(', ')}</td></tr>`;
+                scheduleBody.innerHTML += row;
+            }
+
+            progressBody.innerHTML = '';
+            for (const [subject, percent] of Object.entries(students[student].progress)) {
+                const lastDate = students[student].lastSubmission[subject] || 'N/A';
+                const row = `
+                    <tr>
+                        <td>${subject}</td>
+                        <td>${percent}%</td>
+                        <td id="date-${subject}">${lastDate}</td>
+                        <td>
+                            <button onclick="updateDate('${student}', '${subject}')">Update</button>
+                        </td>
+                    </tr>`;
+                progressBody.innerHTML += row;
+            }
+        }
+
+        function updateDate(student, subject) {
+            const date = new Date().toLocaleDateString();
+            students[student].lastSubmission[subject] = date;
+            document.getElementById(`date-${subject}`).innerText = date;
+        }
+
+        function generateLink(student) {
+            const baseUrl = window.location.href.split('?')[0];
+            const link = `${baseUrl}?student=${student}`;
+            alert(`Share this link: ${link}`);
+        }
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const student = urlParams.get('student');
+            if (student && students[student]) {
+                document.getElementById('studentSelect').value = student;
+            }
+            updateSchedule();
+        };
+    </script>
+    
+    <button onclick="generateLink(document.getElementById('studentSelect').value)">Get Student Link</button>
+</body>
+</html>
